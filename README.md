@@ -1,37 +1,19 @@
-# 🛡️ Real-Time System File Integrity Monitor (FIM)
+# File Integrity Monitor
 
-[![Security Audit](https://img.shields.io/badge/Security-Educational%20Tool-emerald?style=for-the-badge)](https://github.com/sparkx313/cybersecurity-file-integrity-monitor)
-[![License: MIT](https://img.shields.io/badge/License-MIT-gold?style=for-the-badge)](LICENSE)
-[![Python 3.11](https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+A snapshot-based file integrity monitor that records SHA-256 hashes and later reports added, removed, or modified files. It uses only Python's standard library.
 
-## 📌 Description
-Cryptographic file integrity monitoring system calculating SHA-256 baseline checksums to detect unauthorized modifications, tampering, and file additions.
+## Create a baseline
 
----
+~~~sh
+python file_integrity_sensor.py baseline --directory ./important-files --manifest ./integrity-baseline.json
+~~~
 
-## 🚀 Key Features
-- **Pure Python Implementation**: Lightweight, modular codebase with standard library efficiency.
-- **Security-First Architecture**: Built for educational ethical security assessments, red team exercises, and blue team defense auditing.
-- **Clear CLI Outputs**: Structured logging, status scores, and security alert formatting.
+## Verify against it
 
----
+~~~sh
+python file_integrity_sensor.py verify --directory ./important-files --manifest ./integrity-baseline.json --report ./verification.json
+~~~
 
-## 📦 Usage Instructions
+Verification exits with status 0 when all scanned files match, status 1 when regular files or skipped-entry types changed, and status 2 on errors or when symlinks/special files make coverage incomplete. The manifest stores relative paths, file sizes, SHA-256 digests, and its creation time.
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/sparkx313/cybersecurity-file-integrity-monitor.git
-   cd cybersecurity-file-integrity-monitor
-   ```
-
-2. **Run the security tool**:
-   ```bash
-   python file_integrity_sensor.py
-   ```
-
----
-
-## ⚠️ Educational Disclaimer
-This repository is created strictly for educational purposes, security auditing, and defensive research. Do not execute against target systems without explicit authorization.
-
-Developed with ❤️ by **sparkx313**.
+The baseline is the trust anchor. Keep it outside the monitored directory or protect it separately; an attacker who can rewrite both the files and the baseline can defeat the comparison. This tool compares snapshots and does not watch filesystem events continuously. Symbolic links and special files are recorded by path and type but are not hashed; a verification with any such entries is marked incomplete.
